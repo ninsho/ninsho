@@ -1,0 +1,105 @@
+name: build and publish
+
+# Triggers when pushed to master branch
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '!*'
+
+jobs:
+  test:
+    name: check and test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm i
+      - run: npm run lint
+      - run: npx -y ninsho-cli@latest create-table
+      - run: npm test
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+      - name: Publish to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: './coverage/lcov.info'
+      - name: Publish to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ath-to-lcov: './coverage/lcov.info'
+
+  release:
+    needs: test
+    name: release-npm-package
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org'
+
+      # Get npm version of ninsho
+      - name: get-npm-version
+        id: npm-version
+        run: echo "npm_version=$(npm show ninsho version)" >> $GITHUB_ENV
+
+      # Get version from package.json
+      - name: get-package-version
+        id: package-version
+        run: echo "package_version=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      # Create tag with current package version
+      - name: current-package-version-to-git-tag
+        uses: pkgdeps/git-tag-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: ''
+          version: ${{ env.package_version }}
+
+      # Create release draft
+      - name: release-draft
+        uses: release-drafter/release-drafter@v5
+        with:
+          name: ${{ env.package_version }}
+          version: ${{ env.package_version }}
+          tag: ${{ env.package_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compare versions and publish if necessary
+      - name: compare-versions-and-publish
+        run: |
+          if [ "${{ env.npm_version }}" != "${{ env.package_version }}" ]; then
+            npm i
+            npm run build
+            npm publish --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

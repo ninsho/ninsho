@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "es2020",
+      "module": "es2020",
+      "outDir": "./dist/esm",
+      "lib": ["es2020"],
+      "moduleResolution": "node",
+      "rootDir": "src",
+      "resolveJsonModule": true,
+      "allowJs": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "declaration": true,
+      "strict": true,
+      "noImplicitAny": true,
+      "skipLibCheck": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": [
+      "**/__tests__/**"
+    ]
+  }
+  

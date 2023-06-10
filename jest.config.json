@@ -1,0 +1,16 @@
+{
+  "roots": ["<rootDir>/src"],
+  "testMatch": [
+    "**/src/**/__tests__/**/?(*.)+(spec).+(ts)"
+  ],
+  "transform": {
+    "^.+\\.(ts)$": "ts-jest"
+  },
+  "coveragePathIgnorePatterns": [
+    "node_modules",
+    "dist",
+    "src/bin"
+  ],
+  "collectCoverage": true,
+  "coverageReporters": ["lcov"]
+}
