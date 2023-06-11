@@ -1,6 +1,6 @@
 {
   "name": "ninsho",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Authentication system specialized for business logic.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.0.3",
-    "ninsho-base": "^0.0.7",
+    "ninsho-base": "^0.0.8",
     "ninsho-module-pg": "^0.0.9",
     "ninsho-module-secure": "^0.0.14",
     "nodemailer": "^6.9.2"
