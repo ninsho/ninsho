@@ -12,5 +12,5 @@
     "src/bin"
   ],
   "collectCoverage": true,
-  "coverageReporters": ["lcov"]
+  "coverageReporters": ["lcov", "text", "text-summary"]
 }
